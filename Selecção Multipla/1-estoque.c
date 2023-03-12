@@ -40,31 +40,34 @@ Produtos* aloca_produto() {
     return produtos;
 }
 
-Produtos* realoca_produtos(Produtos *produtos, int* count) {
-    if(*count > 0) {
-        produtos = (Produtos *)realloc(produtos, (*count + 1) * sizeof(Produtos));
-        if(produtos == NULL) {
-            printf("Erro ao alocar memoria para produtos\n");
-            fflush(stdin);
-            free(produtos);
-            produtos = NULL;
-            getchar();
-            exit(-1);
-        }
-    }    
-    return produtos;
-    
+void realoca_produtos(Produtos** produtos, int** count) {
+    int novo_tamanho = **count + 1;
+    printf("entrou em realoca memória\n");
+    *produtos = (Produtos *)realloc(*produtos, novo_tamanho * sizeof(Produtos));
+    if(*produtos == NULL) {
+        printf("Erro ao alocar memoria para produtos\n");
+        fflush(stdin);
+        free(*produtos);
+        *produtos = NULL;
+        free(produtos);
+        produtos = NULL;
+        free(*count);
+        *count = NULL;
+        getchar();
+        exit(-1);
+    }
+    printf("Alocou memoria, count = %d\n", novo_tamanho);
 }
 
-Produtos* adiciona_produto(Produtos *produtos, int* count, int quantidade_produto, char nome_produto[101]) {
-    if(count > 0){
-        produtos = realoca_produtos(produtos, count);
+void adiciona_produto(Produtos** produtos, int** count, int quantidade_produto, char nome_produto[101]) {
+    if(**count > 0){
+        realoca_produtos(produtos, count);
     }
-    strcpy(produtos[*count].nome, nome_produto);
-    produtos[*count].quantidade = quantidade_produto;
-    (*count)++;
-    printf("count adiciona_produto: %d\n", *count);
-    return produtos;
+    strcpy((*produtos)[**count].nome, nome_produto);
+    (*produtos)[**count].quantidade = quantidade_produto;
+    (**count)++;
+    printf("count adiciona_produto: %d\n", **count);
+    //return produtos;
 }
 
 void exibe_produtos(Produtos *produtos, int* count) {
@@ -76,8 +79,10 @@ void exibe_produtos(Produtos *produtos, int* count) {
     printf("\n");
 }
 
-void libera_produtos(Produtos *produtos) {
+void libera_produtos(Produtos** produtos) {
     fflush(stdin);
+    free(*produtos);
+    *produtos = NULL;
     free(produtos);
     produtos = NULL;
 }
@@ -105,7 +110,7 @@ int main() {
         scanf("%i", &quantidade_produto);
         printf("var quant: %d\n", quantidade_produto);
 
-        produtos = adiciona_produto(produtos, count, quantidade_produto, nome_produto);
+        adiciona_produto(&produtos, &count, quantidade_produto, nome_produto);
 
         printf("Deseja inserir mais um produto: s (Sim) / n (Não)\n");
         scanf("%1s", &opcao_add);
@@ -115,7 +120,7 @@ int main() {
 
     exibe_produtos(produtos, count);
 
-    libera_produtos(produtos);
+    libera_produtos(&produtos);
 
     fflush(stdin);
 
