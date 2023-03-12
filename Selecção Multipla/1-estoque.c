@@ -87,36 +87,39 @@ void libera_produtos(Produtos** produtos) {
     produtos = NULL;
 }
 
-
-int main() {
-
-    int* count;
+void inserir_produtos_no_estoque(Produtos** produtos, int** count) {
     bool resposta = true;
-    Produtos* produtos;
-    produtos = aloca_produto();  
-    count = (int *)malloc(sizeof(int));
-    *count = 0;
-
     while(resposta) { 
         char nome_produto[101];
         int quantidade_produto;
         char opcao_add[2];
 
         printf("Digite um nome para o produto:\n");
-        scanf("%100s", &nome_produto);
+        scanf(" %100[^\n]", nome_produto);
         printf("var nome %s\n", nome_produto);
 
         printf("Digite a quantidade a ser inserida deste produto:\n");
         scanf("%i", &quantidade_produto);
         printf("var quant: %d\n", quantidade_produto);
 
-        adiciona_produto(&produtos, &count, quantidade_produto, nome_produto);
+        adiciona_produto(produtos, count, quantidade_produto, nome_produto);
 
         printf("Deseja inserir mais um produto: s (Sim) / n (Não)\n");
         scanf("%1s", &opcao_add);
 
         resposta = le_resposta(opcao_add);
     }
+}
+
+int main() {
+
+    int* count;
+    Produtos* produtos;
+    produtos = aloca_produto();  
+    count = (int *)malloc(sizeof(int));
+    *count = 0;
+
+    inserir_produtos_no_estoque(&produtos, &count);
 
     exibe_produtos(produtos, count);
 
