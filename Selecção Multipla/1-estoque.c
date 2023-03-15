@@ -59,6 +59,7 @@ void realoca_produtos(Produtos** produtos, int** count) {
     printf("Alocou memoria, count = %d\n", novo_tamanho);
 }
 
+//Função ainda não reconhece produtos já existentes
 void adiciona_produto(Produtos** produtos, int** count, int quantidade_produto, char nome_produto[101]) {
     if(**count > 0){
         realoca_produtos(produtos, count);
@@ -74,7 +75,7 @@ void exibe_produtos(Produtos *produtos, int* count) {
     int i;
     printf("Lista de produtos inseridos:\n");
     for(i = 0; i < *count; i++) {
-        printf("%s, quant.: %d\n", produtos[i].nome, produtos[i].quantidade);
+        printf("Índice: %d: %s, quant.: %d\n", i+1, produtos[i].nome, produtos[i].quantidade);
     }
     printf("\n");
 }
@@ -111,17 +112,82 @@ void inserir_produtos_no_estoque(Produtos** produtos, int** count) {
     }
 }
 
-int main() {
+void subtrair_produto(Produtos** produtos, int** count, int index, int quantidade) {
+    index--;
+    if((index)<=**count) {
+        if(quantidade <= (*produtos)[index].quantidade){
+            (*produtos)[index].quantidade-=quantidade;
+            printf("Produto %s: Atualizado, quantidade atual: %d\n", (*produtos)[index].nome, (*produtos)[index].quantidade);
+        } else {
+            printf("Quantidade inválida.\n");
+        }
+    } else {
+        printf("Índice inválido.\n");
+    }
+}
 
+void fornecer_produto(Produtos** produtos, int** count) {
+    bool resposta = true;
+    int index = 0;
+    char opcao[2];;
+    int quantidade = 0;
+    while(resposta) { 
+        exibe_produtos(*produtos, *count);
+
+        printf("Diga o código do produto que deseja fornecer:\n");
+        scanf("%d", &index);
+        printf("Digite a quantidade do produto que deseja fornecer:\n");
+        scanf("%d", &quantidade);
+
+        if(index>0){
+            subtrair_produto(produtos, count, index, quantidade);
+        } else {
+            printf("Produto inválido\n");
+        }
+
+        printf("Deseja fornecer mais um produto: s (Sim) / n (Não)\n");
+        scanf("%1s", &opcao);
+
+        resposta = le_resposta(opcao);
+    }
+
+}
+
+int main() {
     int* count;
+    bool resposta = true;
     Produtos* produtos;
     produtos = aloca_produto();  
     count = (int *)malloc(sizeof(int));
     *count = 0;
 
-    inserir_produtos_no_estoque(&produtos, &count);
+    while(true){
+        char opcao[2];
+        int index = 0;
+        printf("Digite o índice do que deseja fazer\n...\n");
+        printf("1 - Inserir produtos no estoque\n");
+        printf("2 - Fornecer produtos do estoque\n");
+        printf("3 - Exibir produtos do estoque\n");
+        printf("0 - Sair\n");
+        scanf("%d", &index);
 
-    exibe_produtos(produtos, count);
+        switch(index){
+            case 0:
+                printf("Até mais!\n");
+                exit(0);
+            case 1:
+                inserir_produtos_no_estoque(&produtos, &count);
+                break;
+            case 2:
+                fornecer_produto(&produtos, &count);
+                break;
+            case 3:
+                exibe_produtos(produtos, count);
+                break;
+            default:
+                printf("Entrada Inválida.\n");
+        }
+    }
 
     libera_produtos(&produtos);
 
