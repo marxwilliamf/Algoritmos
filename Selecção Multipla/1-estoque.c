@@ -59,16 +59,30 @@ void realoca_produtos(Produtos** produtos, int** count) {
     printf("Alocou memoria, count = %d\n", novo_tamanho);
 }
 
+int encontra_produto(Produtos* produtos, int* count, char nome_produto[101]) {
+    for(int i = 0 ; i < *count ; i++) {
+        if(strcmp(produtos[i].nome, nome_produto)==0) {
+            return i;
+        }
+    }
+    return -1;
+}
+
 //Função ainda não reconhece produtos já existentes
 void adiciona_produto(Produtos** produtos, int** count, int quantidade_produto, char nome_produto[101]) {
-    if(**count > 0){
-        realoca_produtos(produtos, count);
+    int index_produto = -1;
+    index_produto = encontra_produto(*produtos, *count, nome_produto);
+    
+    if(index_produto == -1){
+        if(**count > 0){
+            realoca_produtos(produtos, count);
+        }
+        strcpy((*produtos)[**count].nome, nome_produto);
+        (*produtos)[**count].quantidade = quantidade_produto;
+        (**count)++;
+    } else {
+        (*produtos)[index_produto].quantidade += quantidade_produto;
     }
-    strcpy((*produtos)[**count].nome, nome_produto);
-    (*produtos)[**count].quantidade = quantidade_produto;
-    (**count)++;
-    printf("count adiciona_produto: %d\n", **count);
-    //return produtos;
 }
 
 void exibe_produtos(Produtos *produtos, int* count) {
@@ -97,11 +111,9 @@ void inserir_produtos_no_estoque(Produtos** produtos, int** count) {
 
         printf("Digite um nome para o produto:\n");
         scanf(" %100[^\n]", nome_produto);
-        printf("var nome %s\n", nome_produto);
 
         printf("Digite a quantidade a ser inserida deste produto:\n");
         scanf("%i", &quantidade_produto);
-        printf("var quant: %d\n", quantidade_produto);
 
         adiciona_produto(produtos, count, quantidade_produto, nome_produto);
 
